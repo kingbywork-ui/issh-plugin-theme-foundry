@@ -1,7 +1,7 @@
 import { mount, unmount } from 'svelte'
 import Settings from './src/Settings.svelte'
 import { foundryChromeCss, foundryTerminalScheme } from './src/theme'
-import type { IsshPlugin, IsshPluginContext, IsshPluginManifest } from './src/types'
+import type { IsshPlugin, IsshPluginContext, IsshPluginManifest, Terminal } from './src/types'
 
 export const manifest: IsshPluginManifest = {
     id: 'issh-plugin-theme-foundry',
@@ -35,7 +35,7 @@ function removeChrome() {
     styleEl = null
 }
 
-function applyTerminalTheme(terminal: import('@xterm/xterm').Terminal) {
+function applyTerminalTheme(terminal: Terminal) {
     const s = foundryTerminalScheme
     // 覆盖当前终端实例的 16 色与 bg/fg/cursor；不触 storage，保证主题由插件接管
     terminal.options.theme = {
@@ -59,7 +59,7 @@ function applyTerminalTheme(terminal: import('@xterm/xterm').Terminal) {
         brightCyan: s.colors[14],
         brightWhite: s.colors[15],
         selectionBackground: 'rgba(255,122,69,.18)',
-    } as never
+    }
 }
 
 const plugin: IsshPlugin = {
@@ -71,16 +71,16 @@ const plugin: IsshPlugin = {
             title: 'Foundry 皮肤',
             order: 20,
             mount: (target) => {
-                const inst = mount(Settings as never, { target })
+                const inst = mount(Settings, { target })
                 return () => unmount(inst)
             },
-        } as never)
+        })
         ctx.gateway.ui.registerTerminalDecorator({
             id: 'foundry-terminal',
             decorate(options) {
                 applyTerminalTheme(options.terminal)
             },
-        } as never)
+        })
         ctx.gateway.log('info', 'Foundry theme activated')
     },
     deactivate() {
